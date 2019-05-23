@@ -3,7 +3,6 @@
 allprojects {
     apply plugin: 'jacoco'
     apply plugin: 'com.palantir.jacoco-coverage'
-    apply plugin: 'com.github.ksoichiro.console.reporter'
 
     jacoco {
         toolVersion = jacocoToolVersion
