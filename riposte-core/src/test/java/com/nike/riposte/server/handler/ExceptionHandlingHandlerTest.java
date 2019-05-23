@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +48,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.Attribute;
 
 import static com.nike.riposte.server.handler.base.PipelineContinuationBehavior.DO_NOT_FIRE_CONTINUE_EVENT;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
@@ -391,7 +391,7 @@ public class ExceptionHandlingHandlerTest {
             .when(explodingHandlerUtilMock)
             .createRequestInfoFromNettyHttpRequestAndHandleStateSetupIfNecessary(any(), any());
 
-        Whitebox.setInternalState(handler, "handlerUtils", explodingHandlerUtilMock);
+        setInternalState(handler, "handlerUtils", explodingHandlerUtilMock);
 
         HttpRequest httpRequest = new DefaultHttpRequest(
             HttpVersion.HTTP_1_1, HttpMethod.GET, "/some/uri"
@@ -418,7 +418,7 @@ public class ExceptionHandlingHandlerTest {
         ErrorResponseInfo errorResponseInfoMock = mock(ErrorResponseInfo.class);
 
         RiposteErrorHandler riposteErrorHandlerMock = mock(RiposteErrorHandler.class);
-        Whitebox.setInternalState(handlerSpy, "riposteErrorHandler", riposteErrorHandlerMock);
+        setInternalState(handlerSpy, "riposteErrorHandler", riposteErrorHandlerMock);
 
         doReturn(requestInfoMock).when(handlerSpy).getRequestInfo(stateMock, msg);
         doReturn(errorResponseInfoMock).when(riposteErrorHandlerMock).maybeHandleError(cause, requestInfoMock);

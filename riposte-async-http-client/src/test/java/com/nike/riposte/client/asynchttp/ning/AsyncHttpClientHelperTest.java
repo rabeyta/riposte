@@ -35,7 +35,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -63,9 +62,12 @@ import io.netty.util.Attribute;
 
 import static com.nike.riposte.client.asynchttp.ning.AsyncHttpClientHelper.DEFAULT_POOLED_DOWNSTREAM_CONNECTION_TTL_MILLIS;
 import static com.nike.riposte.client.asynchttp.ning.AsyncHttpClientHelper.DEFAULT_REQUEST_TIMEOUT_MILLIS;
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static com.nike.wingtips.http.HttpRequestTracingUtils.convertSampleableBooleanToExpectedB3Value;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -162,7 +164,7 @@ public class AsyncHttpClientHelperTest {
         assertThat(config.getMaxRequestRetry()).isEqualTo(0);
         assertThat(config.getRequestTimeout()).isEqualTo(DEFAULT_REQUEST_TIMEOUT_MILLIS);
         assertThat(config.getConnectionTTL()).isEqualTo(DEFAULT_POOLED_DOWNSTREAM_CONNECTION_TTL_MILLIS);
-        assertThat(Whitebox.getInternalState(instance.asyncHttpClient, "signatureCalculator")).isNull();
+        assertThat(getInternalState(instance.asyncHttpClient, "signatureCalculator")).isNull();
     }
 
     @Test
@@ -187,7 +189,7 @@ public class AsyncHttpClientHelperTest {
         // then
         assertThat(result).isSameAs(instance);
         assertThat(instance.performSubSpanAroundDownstreamCalls).isTrue();
-        assertThat(Whitebox.getInternalState(instance.asyncHttpClient, "signatureCalculator")).isEqualTo(signatureCalculator);
+        assertThat(getInternalState(instance.asyncHttpClient, "signatureCalculator")).isEqualTo(signatureCalculator);
         assertThat(instance.spanNamingAndTaggingStrategy).isSameAs(tagAndNamingStrategy);
     }
 
@@ -433,7 +435,7 @@ public class AsyncHttpClientHelperTest {
         boolean performSubspan, boolean currentTracingInfoNull
     ) {
         // given
-        Whitebox.setInternalState(helperSpy, "performSubSpanAroundDownstreamCalls", performSubspan);
+        setInternalState(helperSpy, "performSubSpanAroundDownstreamCalls", performSubspan);
 
         CircuitBreaker<Response> circuitBreakerMock = mock(CircuitBreaker.class);
         doReturn(Optional.of(circuitBreakerMock)).when(helperSpy).getCircuitBreaker(any(RequestBuilderWrapper.class));
@@ -535,7 +537,7 @@ public class AsyncHttpClientHelperTest {
                                      : new RuntimeException("kaboom");
         doThrow(exToThrow).when(helperSpy).getCircuitBreaker(any(RequestBuilderWrapper.class));
         Logger loggerMock = mock(Logger.class);
-        Whitebox.setInternalState(helperSpy, "logger", loggerMock);
+        setInternalState(helperSpy, "logger", loggerMock);
 
         // when
         CompletableFuture result = helperSpy
@@ -550,7 +552,7 @@ public class AsyncHttpClientHelperTest {
         if (throwCircuitBreakerOpenException)
             verifyZeroInteractions(loggerMock);
         else
-            verify(loggerMock).error(anyString(), anyString(), anyString(), eq(exToThrow));
+            verify(loggerMock).error(anyString(), isNull(), isNull(), eq(exToThrow));
     }
 
     @DataProvider(value = {
@@ -578,9 +580,9 @@ public class AsyncHttpClientHelperTest {
         assertThat(result).isPresent();
         assertThat(result.get()).isInstanceOf(CircuitBreakerDelegate.class);
         CircuitBreakerDelegate<Response, Integer> wrapper = (CircuitBreakerDelegate) result.get();
-        CircuitBreaker<Integer> delegate = (CircuitBreaker<Integer>) Whitebox.getInternalState(wrapper, "delegate");
+        CircuitBreaker<Integer> delegate = (CircuitBreaker<Integer>) getInternalState(wrapper, "delegate");
         Function<Response, Integer> eventConverter =
-            (Function<Response, Integer>) Whitebox.getInternalState(wrapper, "eventConverter");
+            (Function<Response, Integer>) getInternalState(wrapper, "eventConverter");
 
         assertThat(delegate)
             .isSameAs(CircuitBreakerForHttpStatusCode.getDefaultHttpStatusCodeCircuitBreakerForKey(host));
@@ -591,12 +593,12 @@ public class AsyncHttpClientHelperTest {
         assertThat(eventConverter.apply(null)).isNull();
 
         if (useNettyEventLoop) {
-            assertThat(Whitebox.getInternalState(delegate, "scheduler")).isEqualTo(eventLoopMock);
-            assertThat(Whitebox.getInternalState(delegate, "stateChangeNotificationExecutor")).isEqualTo(eventLoopMock);
+            assertThat(getInternalState(delegate, "scheduler")).isEqualTo(eventLoopMock);
+            assertThat(getInternalState(delegate, "stateChangeNotificationExecutor")).isEqualTo(eventLoopMock);
         }
         else {
-            assertThat(Whitebox.getInternalState(delegate, "scheduler")).isNotEqualTo(eventLoopMock);
-            assertThat(Whitebox.getInternalState(delegate, "stateChangeNotificationExecutor"))
+            assertThat(getInternalState(delegate, "scheduler")).isNotEqualTo(eventLoopMock);
+            assertThat(getInternalState(delegate, "stateChangeNotificationExecutor"))
                 .isNotEqualTo(eventLoopMock);
         }
     }

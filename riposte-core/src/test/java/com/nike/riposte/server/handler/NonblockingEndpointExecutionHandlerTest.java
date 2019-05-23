@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.verification.VerificationMode;
 import org.slf4j.MDC;
 
@@ -52,6 +51,7 @@ import io.netty.util.Attribute;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.ScheduledFuture;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Matchers.any;
@@ -166,8 +166,8 @@ public class NonblockingEndpointExecutionHandlerTest {
         );
 
         // then
-        Executor actualExecutor = (Executor) Whitebox.getInternalState(theHandler, "longRunningTaskExecutor");
-        long actualTimeoutValue = (long) Whitebox.getInternalState(theHandler, "defaultCompletableFutureTimeoutMillis");
+        Executor actualExecutor = (Executor) getInternalState(theHandler, "longRunningTaskExecutor");
+        long actualTimeoutValue = (long) getInternalState(theHandler, "defaultCompletableFutureTimeoutMillis");
         assertThat(actualExecutor).isEqualTo(longRunningTaskExecutorMock);
         assertThat(actualTimeoutValue).isEqualTo(defaultCompletableFutureTimeoutMillis);
     }

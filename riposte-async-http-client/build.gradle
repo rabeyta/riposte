@@ -9,6 +9,7 @@ dependencies {
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     )
     testCompile (
+            project(":riposte-core").sourceSets.test.output,
             "org.jetbrains:annotations:$jetbrainsAnnotationsVersion",
             "junit:junit:$junitVersion",
             "org.mockito:mockito-core:$mockitoVersion",

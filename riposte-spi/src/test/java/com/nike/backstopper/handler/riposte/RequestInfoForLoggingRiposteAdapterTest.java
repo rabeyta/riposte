@@ -9,7 +9,6 @@ import com.nike.riposte.server.http.impl.RequestInfoImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -22,6 +21,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -53,7 +53,7 @@ public class RequestInfoForLoggingRiposteAdapterTest {
     }
 
     private void setFieldOnRequestInfo(String fieldName, Object value) {
-        Whitebox.setInternalState(requestInfoSpy, fieldName, value);
+        setInternalState(requestInfoSpy, fieldName, value);
     }
 
     @Test

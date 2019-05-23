@@ -90,7 +90,7 @@ ext {
     junitVersion = '4.12'
     junitDataproviderVersion = '1.9.3'
     assertJVersion = '3.12.2'
-    mockitoVersion = '1.10.8'
+    mockitoVersion = '2.27.0'
     slf4jTestVersion = '1.1.0'
     guiceVersion = '4.2.2'
 

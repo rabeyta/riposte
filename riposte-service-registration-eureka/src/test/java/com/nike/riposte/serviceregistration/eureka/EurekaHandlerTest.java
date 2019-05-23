@@ -15,11 +15,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.function.Supplier;
 
 import static com.netflix.appinfo.DataCenterInfo.Name.MyOwn;
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Matchers.any;
@@ -90,7 +90,7 @@ public class EurekaHandlerTest {
                                                 clientConfigCaptor.capture());
         EurekaClientConfig clientConfigUsed = clientConfigCaptor.getValue();
         assertThat(clientConfigUsed).isInstanceOf(DefaultEurekaClientConfig.class);
-        assertThat(Whitebox.getInternalState(clientConfigUsed, "namespace")).isEqualTo(handlerSpy.eurekaClientNamespace);
+        assertThat(getInternalState(clientConfigUsed, "namespace")).isEqualTo(handlerSpy.eurekaClientNamespace);
 
         verify(handlerSpy).setEurekaInstanceStatus(InstanceStatus.UP);
     }
@@ -142,7 +142,7 @@ public class EurekaHandlerTest {
 
         // then
         assertThat(instanceConfig).isInstanceOf(MyDataCenterInstanceConfig.class);
-        assertThat(Whitebox.getInternalState(instanceConfig, "namespace")).isEqualTo(handlerSpy.eurekaClientNamespace);
+        assertThat(getInternalState(instanceConfig, "namespace")).isEqualTo(handlerSpy.eurekaClientNamespace);
     }
 
     @DataProvider(value = {

@@ -22,7 +22,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.MDC;
 
 import java.util.Deque;
@@ -36,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nike.riposte.client.asynchttp.ning.AsyncCompletionHandlerWithTracingAndMdcSupportTest.ExistingSpanStackState.EMPTY;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -267,7 +267,7 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
             default:
                 throw new IllegalArgumentException("Unhandled state: " + existingSpanStackState.name());
         }
-        Whitebox.setInternalState(handlerSpy, "distributedTraceStackToUse", spanStack);
+        setInternalState(handlerSpy, "distributedTraceStackToUse", spanStack);
 
         // when
         Span spanForCall = handlerSpy.getSpanForCall();
@@ -360,7 +360,7 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
         throws Throwable {
         // given
         CompletableFuture<String> cfMock = mock(CompletableFuture.class);
-        Whitebox.setInternalState(handlerSpy, "completableFutureResponse", cfMock);
+        setInternalState(handlerSpy, "completableFutureResponse", cfMock);
         doReturn(true).when(cfMock).isDone();
 
         // when
@@ -432,9 +432,9 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
     public void onCompleted_deals_with_trace_info_as_expected(Boolean setupForSubspan) throws Throwable {
         // given
         Pair<Deque<Span>, Map<String, String>> traceInfo = generateTraceInfo(setupForSubspan);
-        Whitebox.setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
-        Whitebox.setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
-        Whitebox.setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", TRUE.equals(setupForSubspan));
+        setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
+        setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
+        setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", TRUE.equals(setupForSubspan));
         Span expectedSpanBeforeCompletion = (traceInfo.getLeft() == null) ? null : traceInfo.getLeft().peek();
         Span expectedSpanAfterCompletion = (setupForSubspan == null)
                                            ? null
@@ -481,9 +481,9 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
         Boolean setupForSubspan) throws Throwable {
         // given
         Pair<Deque<Span>, Map<String, String>> traceInfo = generateTraceInfo(setupForSubspan);
-        Whitebox.setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
-        Whitebox.setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
-        Whitebox.setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", false);
+        setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
+        setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
+        setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", false);
         Pair<ObjectHolder<Span>, ObjectHolder<Span>> actualBeforeAndAfterSpanHolders =
             setupBeforeAndAfterSpanCaptureForOnCompleted();
 
@@ -541,7 +541,7 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
         // given
         Exception ex = new Exception("kaboom");
         CompletableFuture<String> cfMock = mock(CompletableFuture.class);
-        Whitebox.setInternalState(handlerSpy, "completableFutureResponse", cfMock);
+        setInternalState(handlerSpy, "completableFutureResponse", cfMock);
         doReturn(true).when(cfMock).isDone();
 
         // when
@@ -555,13 +555,13 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
     }
 
     private Pair<ObjectHolder<Span>, ObjectHolder<Span>> setupBeforeAndAfterSpanCaptureForOnThrowable(
-        CompletableFuture<String> cfMock) throws Throwable {
+        CompletableFuture<String> cfMock) {
         ObjectHolder<Span> before = new ObjectHolder<>();
         ObjectHolder<Span> after = new ObjectHolder<>();
 
         doAnswer(invocation -> {
             before.setObj(Tracer.getInstance().getCurrentSpan());
-            return invocation.callRealMethod();
+            return null;
         }).when(circuitBreakerManualTaskMock).handleException(any(Throwable.class));
 
         doAnswer(invocation -> {
@@ -582,13 +582,13 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
         // given
         Exception ex = new Exception("kaboom");
         CompletableFuture<String> cfMock = mock(CompletableFuture.class);
-        Whitebox.setInternalState(handlerSpy, "completableFutureResponse", cfMock);
+        setInternalState(handlerSpy, "completableFutureResponse", cfMock);
         doReturn(false).when(cfMock).isDone();
 
         Pair<Deque<Span>, Map<String, String>> traceInfo = generateTraceInfo(setupForSubspan);
-        Whitebox.setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
-        Whitebox.setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
-        Whitebox.setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", TRUE.equals(setupForSubspan));
+        setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
+        setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
+        setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", TRUE.equals(setupForSubspan));
         Span expectedSpanBeforeCompletion = (traceInfo.getLeft() == null) ? null : traceInfo.getLeft().peek();
         Span expectedSpanAfterCompletion = (setupForSubspan == null)
                                            ? null
@@ -636,13 +636,13 @@ public class AsyncCompletionHandlerWithTracingAndMdcSupportTest {
         // given
         Exception ex = new Exception("kaboom");
         CompletableFuture<String> cfMock = mock(CompletableFuture.class);
-        Whitebox.setInternalState(handlerSpy, "completableFutureResponse", cfMock);
+        setInternalState(handlerSpy, "completableFutureResponse", cfMock);
         doReturn(false).when(cfMock).isDone();
 
         Pair<Deque<Span>, Map<String, String>> traceInfo = generateTraceInfo(setupForSubspan);
-        Whitebox.setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
-        Whitebox.setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
-        Whitebox.setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", false);
+        setInternalState(handlerSpy, "distributedTraceStackToUse", traceInfo.getLeft());
+        setInternalState(handlerSpy, "mdcContextToUse", traceInfo.getRight());
+        setInternalState(handlerSpy, "performSubSpanAroundDownstreamCalls", false);
         Pair<ObjectHolder<Span>, ObjectHolder<Span>> actualBeforeAndAfterSpanHolders =
             setupBeforeAndAfterSpanCaptureForOnThrowable(cfMock);
 

@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 
 import java.util.Deque;
@@ -41,6 +40,8 @@ import io.netty.util.Attribute;
 import io.netty.util.concurrent.GenericFutureListener;
 
 import static com.nike.riposte.server.channelpipeline.HttpChannelInitializer.IDLE_CHANNEL_TIMEOUT_HANDLER_NAME;
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -268,7 +269,7 @@ public class ChannelPipelineFinalizerHandlerTest {
     ) throws Exception {
         // given
         if (metricsListenerIsNull)
-            Whitebox.setInternalState(handler, "metricsListener", null);
+            setInternalState(handler, "metricsListener", null);
 
         state.setRequestMetricsRecordedOrScheduled(metricsAlreadyScheduled);
 
@@ -319,7 +320,7 @@ public class ChannelPipelineFinalizerHandlerTest {
         ChannelHandler handlerRegistered = idleHandlerArgCaptor.getValue();
         assertThat(handlerRegistered, instanceOf(IdleChannelTimeoutHandler.class));
         IdleChannelTimeoutHandler idleHandler = (IdleChannelTimeoutHandler)handlerRegistered;
-        long idleValue = (long) Whitebox.getInternalState(idleHandler, "idleTimeoutMillis");
+        long idleValue = (long) getInternalState(idleHandler, "idleTimeoutMillis");
         assertThat(idleValue, is(workerChannelIdleTimeoutMillis));
     }
 
@@ -333,7 +334,7 @@ public class ChannelPipelineFinalizerHandlerTest {
         long timeoutVal, boolean idleTimeoutHandlerAlreadyExists
     ) throws JsonProcessingException {
         // given
-        Whitebox.setInternalState(handler, "workerChannelIdleTimeoutMillis", timeoutVal);
+        setInternalState(handler, "workerChannelIdleTimeoutMillis", timeoutVal);
         LastOutboundMessage msg = mock(LastOutboundMessage.class);
         if (idleTimeoutHandlerAlreadyExists)
             doReturn(mock(ChannelHandler.class)).when(pipelineMock).get(IDLE_CHANNEL_TIMEOUT_HANDLER_NAME);
@@ -628,7 +629,7 @@ public class ChannelPipelineFinalizerHandlerTest {
     ) throws Exception {
         // given
         if (accessLoggerIsNull)
-            Whitebox.setInternalState(handler, "accessLogger", null);
+            setInternalState(handler, "accessLogger", null);
 
         state.setAccessLogCompletedOrScheduled(accessLoggingAlreadyScheduled);
 
@@ -826,7 +827,7 @@ public class ChannelPipelineFinalizerHandlerTest {
         // doChannelInactive() does some debug logging if the logger has debug logging enabled.
         Logger loggerMock = mock(Logger.class);
         doReturn(true).when(loggerMock).isDebugEnabled();
-        Whitebox.setInternalState(handler, "logger", loggerMock);
+        setInternalState(handler, "logger", loggerMock);
         handler.doChannelInactive(ctxMock);
         doReturn(false).when(loggerMock).isDebugEnabled();
         handler.doChannelInactive(ctxMock);

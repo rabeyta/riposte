@@ -15,7 +15,6 @@ import com.nike.riposte.server.http.RequestInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -50,8 +50,8 @@ public class RiposteUnhandledExceptionHandlerTest {
     @Test
     public void constructorWorksIfPassedValidValues() {
         RiposteUnhandledExceptionHandler myAdapter = new RiposteUnhandledExceptionHandler(projectApiErrors, utils);
-        assertThat(Whitebox.getInternalState(myAdapter, "projectApiErrors"), is(projectApiErrors));
-        assertThat(Whitebox.getInternalState(myAdapter, "utils"), is(utils));
+        assertThat(getInternalState(myAdapter, "projectApiErrors"), is(projectApiErrors));
+        assertThat(getInternalState(myAdapter, "utils"), is(utils));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -90,7 +90,7 @@ public class RiposteUnhandledExceptionHandlerTest {
         RequestInfoForLogging passedArg = requestInfoForLoggingArgumentCaptor.getValue();
         assertThat(passedArg, instanceOf(RequestInfoForLoggingRiposteAdapter.class));
 
-        RequestInfo embeddedRequestInfoInWrapper = (RequestInfo) Whitebox.getInternalState(passedArg, "request");
+        RequestInfo embeddedRequestInfoInWrapper = (RequestInfo) getInternalState(passedArg, "request");
         assertThat(embeddedRequestInfoInWrapper, sameInstance(requestInfoMock));
     }
 

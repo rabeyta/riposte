@@ -8,12 +8,13 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelMetadata;
 import io.netty.channel.embedded.EmbeddedChannel;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -33,7 +34,7 @@ public class SmartHttpContentDecompressorTest {
         SmartHttpContentDecompressor decompressor = new SmartHttpContentDecompressor();
 
         // then
-        assertThat(Whitebox.getInternalState(decompressor, "strict")).isEqualTo(false);
+        assertThat(getInternalState(decompressor, "strict")).isEqualTo(false);
     }
 
     @DataProvider(value = {
@@ -46,7 +47,7 @@ public class SmartHttpContentDecompressorTest {
         SmartHttpContentDecompressor decompressor = new SmartHttpContentDecompressor(strict);
 
         // then
-        assertThat(Whitebox.getInternalState(decompressor, "strict")).isEqualTo(strict);
+        assertThat(getInternalState(decompressor, "strict")).isEqualTo(strict);
     }
 
     private enum NewContentDecoderScenario {
@@ -89,7 +90,7 @@ public class SmartHttpContentDecompressorTest {
         // given
         SmartHttpContentDecompressor decompressor = new SmartHttpContentDecompressor();
         TestUtil.ChannelHandlerContextMocks mocks = TestUtil.mockChannelHandlerContext();
-        Whitebox.setInternalState(decompressor, "ctx", mocks.mockContext);
+        setInternalState(decompressor, "ctx", mocks.mockContext);
         ChannelMetadata channelMetadata = new ChannelMetadata(false);
         ChannelConfig channelConfigMock = mock(ChannelConfig.class);
 

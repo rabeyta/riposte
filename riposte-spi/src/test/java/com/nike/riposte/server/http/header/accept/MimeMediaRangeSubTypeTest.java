@@ -3,10 +3,11 @@ package com.nike.riposte.server.http.header.accept;
 import com.nike.riposte.server.http.mimetype.MimeType;
 
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.UUID;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -46,7 +47,7 @@ public class MimeMediaRangeSubTypeTest {
     }
 
     private String getToStringCache(MimeMediaRangeSubType instance) {
-        return (String) Whitebox.getInternalState(instance, "toStringCache");
+        return (String) getInternalState(instance, "toStringCache");
     }
 
     @Test
@@ -63,7 +64,7 @@ public class MimeMediaRangeSubTypeTest {
 
         // and when
         String newCustomVal = UUID.randomUUID().toString();
-        Whitebox.setInternalState(instance, "toStringCache", newCustomVal);
+        setInternalState(instance, "toStringCache", newCustomVal);
 
         // then
         assertThat(instance.toString()).isEqualTo(newCustomVal);

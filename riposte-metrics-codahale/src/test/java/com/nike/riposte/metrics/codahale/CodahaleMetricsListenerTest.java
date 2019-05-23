@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 
 import java.util.Arrays;
@@ -53,6 +52,7 @@ import static com.codahale.metrics.MetricRegistry.name;
 import static com.nike.riposte.metrics.codahale.CodahaleMetricsListener.DEFAULT_REQUEST_AND_RESPONSE_SIZE_HISTOGRAM_SUPPLIER;
 import static com.nike.riposte.metrics.codahale.CodahaleMetricsListener.DefaultMetricNamingStrategy.DEFAULT_PREFIX;
 import static com.nike.riposte.metrics.codahale.CodahaleMetricsListener.DefaultMetricNamingStrategy.DEFAULT_WORD_DELIMITER;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -159,7 +159,7 @@ public class CodahaleMetricsListenerTest {
 
         registeredTimerMocks = new HashMap<>();
         doAnswer(invocation -> {
-            String name = invocation.getArgumentAt(0, String.class);
+            String name = invocation.getArgument(0);
             Timer timerMock = mock(Timer.class);
             registeredTimerMocks.put(name, timerMock);
             return timerMock;
@@ -167,7 +167,7 @@ public class CodahaleMetricsListenerTest {
 
         registeredMeterMocks = new HashMap<>();
         doAnswer(invocation -> {
-            String name = invocation.getArgumentAt(0, String.class);
+            String name = invocation.getArgument(0);
             Meter meterMock = mock(Meter.class);
             registeredMeterMocks.put(name, meterMock);
             return meterMock;
@@ -175,7 +175,7 @@ public class CodahaleMetricsListenerTest {
 
         registeredCounterMocks = new HashMap<>();
         doAnswer(invocation -> {
-            String name = invocation.getArgumentAt(0, String.class);
+            String name = invocation.getArgument(0);
             Counter counterMock = mock(Counter.class);
             registeredCounterMocks.put(name, counterMock);
             return counterMock;
@@ -183,7 +183,7 @@ public class CodahaleMetricsListenerTest {
 
         registeredHistogramMocks = new HashMap<>();
         doAnswer(invocation -> {
-            String name = invocation.getArgumentAt(0, String.class);
+            String name = invocation.getArgument(0);
             Histogram histogramMock = mock(Histogram.class);
             registeredHistogramMocks.put(name, histogramMock);
             return histogramMock;
@@ -191,8 +191,8 @@ public class CodahaleMetricsListenerTest {
 
         registeredGauges = new HashMap<>();
         doAnswer(invocation -> {
-            String name = invocation.getArgumentAt(0, String.class);
-            Metric metric = invocation.getArgumentAt(1, Metric.class);
+            String name = invocation.getArgument(0);
+            Metric metric = invocation.getArgument(1);
             if (metric instanceof Gauge)
                 registeredGauges.put(name, (Gauge)metric);
             else if (metric instanceof Histogram)
@@ -204,26 +204,26 @@ public class CodahaleMetricsListenerTest {
         }).when(metricRegistryMock).register(anyString(), any(Metric.class));
 
         doAnswer(invocation -> {
-            String name = invocation.getArgumentAt(0, String.class);
-            Metric metric = invocation.getArgumentAt(1, Metric.class);
+            String name = invocation.getArgument(0);
+            Metric metric = invocation.getArgument(1);
             metricRegistryMock.register(name, metric);
             return metric;
         }).when(cmcMock).registerNamedMetric(anyString(), any(Metric.class));
 
         doAnswer(
-            invocation -> metricRegistryMock.counter(invocation.getArgumentAt(0, String.class))
+            invocation -> metricRegistryMock.counter(invocation.getArgument(0))
         ).when(cmcMock).getNamedCounter(anyString());
 
         doAnswer(
-            invocation -> metricRegistryMock.meter(invocation.getArgumentAt(0, String.class))
+            invocation -> metricRegistryMock.meter(invocation.getArgument(0))
         ).when(cmcMock).getNamedMeter(anyString());
 
         doAnswer(
-            invocation -> metricRegistryMock.histogram(invocation.getArgumentAt(0, String.class))
+            invocation -> metricRegistryMock.histogram(invocation.getArgument(0))
         ).when(cmcMock).getNamedHistogram(anyString());
 
         doAnswer(
-            invocation -> metricRegistryMock.timer(invocation.getArgumentAt(0, String.class))
+            invocation -> metricRegistryMock.timer(invocation.getArgument(0))
         ).when(cmcMock).getNamedTimer(anyString());
     }
 
@@ -739,7 +739,7 @@ public class CodahaleMetricsListenerTest {
         ServerMetricsEvent event = null;
         Logger loggerMock = mock(Logger.class);
         doReturn(false).when(loggerMock).isDebugEnabled();
-        Whitebox.setInternalState(listener, "logger", loggerMock);
+        setInternalState(listener, "logger", loggerMock);
 
         // when
         listener.onEvent(event, null);
@@ -757,7 +757,7 @@ public class CodahaleMetricsListenerTest {
         doThrow(ex).when(listener.inflightRequests).dec();
         Logger loggerMock = mock(Logger.class);
         doReturn(false).when(loggerMock).isDebugEnabled();
-        Whitebox.setInternalState(listener, "logger", loggerMock);
+        setInternalState(listener, "logger", loggerMock);
 
         // when
         listener.onEvent(event, state);
@@ -786,7 +786,7 @@ public class CodahaleMetricsListenerTest {
         // Account for the logger.isDebugEnabled() branches.
         Logger loggerMock = mock(Logger.class);
         doReturn(false).when(loggerMock).isDebugEnabled();
-        Whitebox.setInternalState(listener, "logger", loggerMock);
+        setInternalState(listener, "logger", loggerMock);
         listener.onEvent(ServerMetricsEvent.REQUEST_RECEIVED, null);
         listener.onEvent(ServerMetricsEvent.RESPONSE_SENT, state);
         listener.onEvent(ServerMetricsEvent.RESPONSE_WRITE_FAILED, state);

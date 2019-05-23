@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +39,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.Attribute;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaders.Values.CHUNKED;
@@ -108,7 +108,7 @@ public class RoutingHandlerTest {
 
         // then
         Collection<Endpoint<?>>
-            actualEndpoints = (Collection<Endpoint<?>>) Whitebox.getInternalState(theHandler, "endpoints");
+            actualEndpoints = (Collection<Endpoint<?>>) getInternalState(theHandler, "endpoints");
         assertThat(actualEndpoints).isSameAs(endpoints);
     }
 

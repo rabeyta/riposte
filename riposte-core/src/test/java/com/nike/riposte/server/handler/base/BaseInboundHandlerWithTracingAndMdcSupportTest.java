@@ -10,7 +10,6 @@ import com.nike.wingtips.Tracer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -32,6 +31,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static com.nike.wingtips.Span.SpanPurpose.LOCAL_ONLY;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -40,6 +41,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
@@ -350,16 +352,16 @@ public class BaseInboundHandlerWithTracingAndMdcSupportTest {
                                  ? null
                                  : findMethodWithName(ChannelHandlerContext.class, fireEventMethodName);
 
-        Whitebox.setInternalState(handlerSpy, "debugHandlerMethodCalls", shouldPerformDebugLogging);
-        Whitebox.setInternalState(handlerSpy, "forceEnableDTraceOnAllMethods", forceEnableDTraceOnAllMethods);
-        Whitebox.setInternalState(handlerSpy, "isDefaultDo" + methodNameWithFirstCharCapitalized + "Impl", isDefaultMethodImpl);
+        setInternalState(handlerSpy, "debugHandlerMethodCalls", shouldPerformDebugLogging);
+        setInternalState(handlerSpy, "forceEnableDTraceOnAllMethods", forceEnableDTraceOnAllMethods);
+        setInternalState(handlerSpy, "isDefaultDo" + methodNameWithFirstCharCapitalized + "Impl", isDefaultMethodImpl);
 
         HandlerMethodToExecute expectedHandlerMethodToExecute = constructHandlerMethodToExecuteFromMethodName(methodName);
         doReturn(argsEligibleForLinkUnlink).when(handlerSpy).argsAreEligibleForLinkingAndUnlinkingDistributedTracingInfo(
             eq(expectedHandlerMethodToExecute), eq(ctxMock), anyObject(), any(Throwable.class)
         );
 
-        TestLogger handlerLogger = TestLoggerFactory.getTestLogger(((Logger) Whitebox.getInternalState(handlerSpy, "logger")).getName());
+        TestLogger handlerLogger = TestLoggerFactory.getTestLogger(((Logger) getInternalState(handlerSpy, "logger")).getName());
         handlerLogger.clear();
 
         ObjectHolder<Boolean> calledLinkMethod = new ObjectHolder<>(false);
@@ -485,7 +487,7 @@ public class BaseInboundHandlerWithTracingAndMdcSupportTest {
         int numExpectedArgsEligibleMethodCalls = (argsEligibleMethodShouldHaveBeenCalled) ? 1 : 0;
 
         verify(handlerSpy, times(numExpectedArgsEligibleMethodCalls)).argsAreEligibleForLinkingAndUnlinkingDistributedTracingInfo(
-            eq(expectedHandlerMethodToExecute), eq(ctxMock), anyObject(), any(Throwable.class)
+            eq(expectedHandlerMethodToExecute), eq(ctxMock), isNull(), isNull()
         );
     }
 

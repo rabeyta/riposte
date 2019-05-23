@@ -51,7 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +77,8 @@ import io.netty.handler.ssl.JdkSslClientContext;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -113,7 +114,7 @@ public class HttpChannelInitializerTest {
     }
 
     private <T> T extractField(Object obj, String fieldName) {
-        return (T)Whitebox.getInternalState(obj, fieldName);
+        return (T)getInternalState(obj, fieldName);
     }
 
     private Endpoint<Object> getMockEndpoint(String path, HttpMethod... matchingMethods) {
@@ -568,7 +569,7 @@ public class HttpChannelInitializerTest {
                 return 789;
             }
         };
-        Whitebox.setInternalState(hci, "httpRequestDecoderConfig", configWithCustomValues);
+        setInternalState(hci, "httpRequestDecoderConfig", configWithCustomValues);
 
         // when
         hci.initChannel(socketChannelMock);
@@ -582,7 +583,7 @@ public class HttpChannelInitializerTest {
         Assertions.assertThat(httpServerCodecHandlerPair).isNotNull();
 
         HttpServerCodec httpServerCodecHandler = httpServerCodecHandlerPair.getValue();
-        HttpRequestDecoder decoderHandler = (HttpRequestDecoder) Whitebox.getInternalState(httpServerCodecHandler, "inboundHandler");
+        HttpRequestDecoder decoderHandler = (HttpRequestDecoder) getInternalState(httpServerCodecHandler, "inboundHandler");
         int actualMaxInitialLineLength = extractField(extractField(decoderHandler, "lineParser"), "maxLength");
         int actualMaxHeaderSize = extractField(extractField(decoderHandler, "headerParser"), "maxLength");
         int actualMaxChunkSize = extractField(decoderHandler, "maxChunkSize");
@@ -599,9 +600,9 @@ public class HttpChannelInitializerTest {
         MetricsListener expectedMetricsListener = mock(MetricsListener.class);
         long expectedIncompleteCallTimeoutMillis = 424242;
         DistributedTracingConfig<Span> distributedTracingConfigMock = mock(DistributedTracingConfig.class);
-        Whitebox.setInternalState(hci, "metricsListener", expectedMetricsListener);
-        Whitebox.setInternalState(hci, "incompleteHttpCallTimeoutMillis", expectedIncompleteCallTimeoutMillis);
-        Whitebox.setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
+        setInternalState(hci, "metricsListener", expectedMetricsListener);
+        setInternalState(hci, "incompleteHttpCallTimeoutMillis", expectedIncompleteCallTimeoutMillis);
+        setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
 
         // when
         hci.initChannel(socketChannelMock);
@@ -624,9 +625,9 @@ public class HttpChannelInitializerTest {
         assertThat(requestStateCleanerHandler.getLeft(), is(httpServerCodecHandler.getLeft() + 2));
 
         RequestStateCleanerHandler handler = requestStateCleanerHandler.getRight();
-        assertThat(Whitebox.getInternalState(handler, "metricsListener"), is(expectedMetricsListener));
-        assertThat(Whitebox.getInternalState(handler, "incompleteHttpCallTimeoutMillis"), is(expectedIncompleteCallTimeoutMillis));
-        assertThat(Whitebox.getInternalState(handler, "distributedTracingConfig"), is(distributedTracingConfigMock));
+        assertThat(getInternalState(handler, "metricsListener"), is(expectedMetricsListener));
+        assertThat(getInternalState(handler, "incompleteHttpCallTimeoutMillis"), is(expectedIncompleteCallTimeoutMillis));
+        assertThat(getInternalState(handler, "distributedTracingConfig"), is(distributedTracingConfigMock));
     }
 
     @Test
@@ -636,7 +637,7 @@ public class HttpChannelInitializerTest {
         DistributedTracingConfig<Span> distributedTracingConfigMock = mock(DistributedTracingConfig.class);
         ServerSpanNamingAndTaggingStrategy<Span> serverSpanNamingAndTaggingStrategyMock =
             mock(ServerSpanNamingAndTaggingStrategy.class);
-        Whitebox.setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
+        setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
         doReturn(serverSpanNamingAndTaggingStrategyMock)
             .when(distributedTracingConfigMock).getServerSpanNamingAndTaggingStrategy();
 
@@ -752,7 +753,7 @@ public class HttpChannelInitializerTest {
 
         // and then
         ChannelGroup expectedChannelGroup = extractField(hci, "openChannelsGroup");
-        ChannelGroup actualChannelGroup = (ChannelGroup) Whitebox.getInternalState(openChannelLimitHandler.getRight(), "openChannelsGroup");
+        ChannelGroup actualChannelGroup = (ChannelGroup) getInternalState(openChannelLimitHandler.getRight(), "openChannelsGroup");
         assertThat(actualChannelGroup, is(expectedChannelGroup));
     }
 
@@ -844,7 +845,7 @@ public class HttpChannelInitializerTest {
 
         // and then
         Collection<Endpoint<?>> expectedEndpoints = extractField(hci, "endpoints");
-        Collection<Endpoint<?>> actualEndpoints = (Collection<Endpoint<?>>) Whitebox.getInternalState(routingHandler.getRight(), "endpoints");
+        Collection<Endpoint<?>> actualEndpoints = (Collection<Endpoint<?>>) getInternalState(routingHandler.getRight(), "endpoints");
         assertThat(actualEndpoints, is(expectedEndpoints));
     }
 
@@ -877,7 +878,7 @@ public class HttpChannelInitializerTest {
         // given
         HttpChannelInitializer hci = basicHttpChannelInitializerNoUtilityHandlers();
         ObjectMapper expectedRequestContentDeserializer = mock(ObjectMapper.class);
-        Whitebox.setInternalState(hci, "requestContentDeserializer", expectedRequestContentDeserializer);
+        setInternalState(hci, "requestContentDeserializer", expectedRequestContentDeserializer);
 
         // when
         hci.initChannel(socketChannelMock);
@@ -898,7 +899,7 @@ public class HttpChannelInitializerTest {
         assertThat(requestContentDeserializerHandler.getLeft(), is(greaterThan(routingHandler.getLeft())));
 
         // and then
-        ObjectMapper actualRequestContentDeserializer = (ObjectMapper) Whitebox.getInternalState(requestContentDeserializerHandler.getRight(), "defaultRequestContentDeserializer");
+        ObjectMapper actualRequestContentDeserializer = (ObjectMapper) getInternalState(requestContentDeserializerHandler.getRight(), "defaultRequestContentDeserializer");
         assertThat(actualRequestContentDeserializer, is(expectedRequestContentDeserializer));
     }
 
@@ -924,7 +925,7 @@ public class HttpChannelInitializerTest {
         assertThat(requestContentValidationHandler.getLeft(), is(greaterThan(requestContentDeserializerHandler.getLeft())));
 
         // and then
-        RequestValidator actualRequestValidator = (RequestValidator) Whitebox.getInternalState(requestContentValidationHandler.getRight(), "validationService");
+        RequestValidator actualRequestValidator = (RequestValidator) getInternalState(requestContentValidationHandler.getRight(), "validationService");
         assertThat(actualRequestValidator, is(expectedValidationService));
     }
 
@@ -948,14 +949,14 @@ public class HttpChannelInitializerTest {
     public void initChannel_adds_NonblockingEndpointExecutionHandler_after_RoutingHandler_and_RequestContentDeserializerHandler_and_RequestContentValidationHandler_and_uses_longRunningTaskExecutor_and_defaultCompletableFutureTimeoutMillis() {
         // given
         HttpChannelInitializer hci = basicHttpChannelInitializerNoUtilityHandlers();
-        Whitebox.setInternalState(hci, "validationService", mock(RequestValidator.class));
+        setInternalState(hci, "validationService", mock(RequestValidator.class));
         Executor expectedLongRunningTaskExecutor = extractField(hci, "longRunningTaskExecutor");
         long expectedDefaultCompletableFutureTimeoutMillis = extractField(hci, "defaultCompletableFutureTimeoutMillis");
 
         DistributedTracingConfig<Span> distributedTracingConfigMock = mock(DistributedTracingConfig.class);
         ServerSpanNamingAndTaggingStrategy<Span> expectedServerSpanNamingAndTaggingStrategy =
             mock(ServerSpanNamingAndTaggingStrategy.class);
-        Whitebox.setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
+        setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
         doReturn(expectedServerSpanNamingAndTaggingStrategy)
             .when(distributedTracingConfigMock).getServerSpanNamingAndTaggingStrategy();
 
@@ -981,10 +982,10 @@ public class HttpChannelInitializerTest {
         assertThat(nonblockingEndpointExecutionHandler.getLeft(), is(greaterThan(requestContentValidationHandler.getLeft())));
 
         // and then
-        Executor actualLongRunningTaskExecutor = (Executor) Whitebox.getInternalState(nonblockingEndpointExecutionHandler.getRight(), "longRunningTaskExecutor");
-        long actualDefaultCompletableFutureTimeoutMillis = (long) Whitebox.getInternalState(nonblockingEndpointExecutionHandler.getRight(), "defaultCompletableFutureTimeoutMillis");
+        Executor actualLongRunningTaskExecutor = (Executor) getInternalState(nonblockingEndpointExecutionHandler.getRight(), "longRunningTaskExecutor");
+        long actualDefaultCompletableFutureTimeoutMillis = (long) getInternalState(nonblockingEndpointExecutionHandler.getRight(), "defaultCompletableFutureTimeoutMillis");
         ServerSpanNamingAndTaggingStrategy<Span> actualTaggingStrategy =
-            (ServerSpanNamingAndTaggingStrategy<Span>) Whitebox.getInternalState(
+            (ServerSpanNamingAndTaggingStrategy<Span>) getInternalState(
                 nonblockingEndpointExecutionHandler.getRight(), "spanTaggingStrategy"
             );
         assertThat(actualLongRunningTaskExecutor, is(expectedLongRunningTaskExecutor));
@@ -1055,7 +1056,7 @@ public class HttpChannelInitializerTest {
         DistributedTracingConfig<Span> distributedTracingConfigMock = mock(DistributedTracingConfig.class);
         ServerSpanNamingAndTaggingStrategy<Span> serverSpanNamingAndTaggingStrategyMock =
             mock(ServerSpanNamingAndTaggingStrategy.class);
-        Whitebox.setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
+        setInternalState(hci, "distributedTracingConfig", distributedTracingConfigMock);
         doReturn(serverSpanNamingAndTaggingStrategyMock)
             .when(distributedTracingConfigMock).getServerSpanNamingAndTaggingStrategy();
 
@@ -1081,9 +1082,9 @@ public class HttpChannelInitializerTest {
 
         // and then
         RiposteErrorHandler
-            actualRiposteErrorHandler = (RiposteErrorHandler) Whitebox.getInternalState(exceptionHandlingHandler.getRight(), "riposteErrorHandler");
+            actualRiposteErrorHandler = (RiposteErrorHandler) getInternalState(exceptionHandlingHandler.getRight(), "riposteErrorHandler");
         RiposteUnhandledErrorHandler
-            actualRiposteUnhandledErrorHandler = (RiposteUnhandledErrorHandler) Whitebox.getInternalState(exceptionHandlingHandler.getRight(), "riposteUnhandledErrorHandler");
+            actualRiposteUnhandledErrorHandler = (RiposteUnhandledErrorHandler) getInternalState(exceptionHandlingHandler.getRight(), "riposteUnhandledErrorHandler");
         assertThat(actualRiposteErrorHandler, is(expectedRiposteErrorHandler));
         assertThat(actualRiposteUnhandledErrorHandler, is(expectedRiposteUnhandledErrorHandler));
     }
@@ -1110,7 +1111,7 @@ public class HttpChannelInitializerTest {
         assertThat(responseSenderHandler.getLeft(), is(greaterThan(nonblockingEndpointExecutionHandler.getLeft())));
 
         // and then
-        ResponseSender actualResponseSender = (ResponseSender) Whitebox.getInternalState(responseSenderHandler.getRight(), "responseSender");
+        ResponseSender actualResponseSender = (ResponseSender) getInternalState(responseSenderHandler.getRight(), "responseSender");
         assertThat(actualResponseSender, is(expectedResponseSender));
     }
 
@@ -1119,7 +1120,7 @@ public class HttpChannelInitializerTest {
         // given
         HttpChannelInitializer hci = basicHttpChannelInitializerNoUtilityHandlers();
         AccessLogger expectedAccessLogger = mock(AccessLogger.class);
-        Whitebox.setInternalState(hci, "accessLogger", expectedAccessLogger);
+        setInternalState(hci, "accessLogger", expectedAccessLogger);
 
         // when
         hci.initChannel(socketChannelMock);
@@ -1137,7 +1138,7 @@ public class HttpChannelInitializerTest {
         assertThat(accessLogEndHandler.getLeft(), is(dTraceEndHandler.getLeft() - 1));
 
         // and then
-        AccessLogger actualAccessLogger = (AccessLogger) Whitebox.getInternalState(accessLogEndHandler.getRight(), "accessLogger");
+        AccessLogger actualAccessLogger = (AccessLogger) getInternalState(accessLogEndHandler.getRight(), "accessLogger");
         assertThat(actualAccessLogger, is(expectedAccessLogger));
     }
 
@@ -1168,8 +1169,8 @@ public class HttpChannelInitializerTest {
         HttpChannelInitializer hci = basicHttpChannelInitializerNoUtilityHandlers();
         MetricsListener expectedMetricsListener = mock(MetricsListener.class);
         AccessLogger expectedAccessLogger = mock(AccessLogger.class);
-        Whitebox.setInternalState(hci, "metricsListener", expectedMetricsListener);
-        Whitebox.setInternalState(hci, "accessLogger", expectedAccessLogger);
+        setInternalState(hci, "metricsListener", expectedMetricsListener);
+        setInternalState(hci, "accessLogger", expectedAccessLogger);
         ResponseSender expectedResponseSender = extractField(hci, "responseSender");
 
         // when
@@ -1189,10 +1190,10 @@ public class HttpChannelInitializerTest {
         Pair<Integer, ExceptionHandlingHandler> expectedExceptionHandlingHandlerPair = findChannelHandler(handlers, ExceptionHandlingHandler.class);
         assertThat(expectedExceptionHandlingHandlerPair, notNullValue());
 
-        ExceptionHandlingHandler actualExceptionHandlingHandler = (ExceptionHandlingHandler) Whitebox.getInternalState(channelPipelineFinalizerHandler.getRight(), "exceptionHandlingHandler");
-        ResponseSender actualResponseSender = (ResponseSender) Whitebox.getInternalState(channelPipelineFinalizerHandler.getRight(), "responseSender");
-        MetricsListener actualMetricsListener = (MetricsListener) Whitebox.getInternalState(channelPipelineFinalizerHandler.getRight(), "metricsListener");
-        AccessLogger actualAccessLogger = (AccessLogger) Whitebox.getInternalState(channelPipelineFinalizerHandler.getRight(), "accessLogger");
+        ExceptionHandlingHandler actualExceptionHandlingHandler = (ExceptionHandlingHandler) getInternalState(channelPipelineFinalizerHandler.getRight(), "exceptionHandlingHandler");
+        ResponseSender actualResponseSender = (ResponseSender) getInternalState(channelPipelineFinalizerHandler.getRight(), "responseSender");
+        MetricsListener actualMetricsListener = (MetricsListener) getInternalState(channelPipelineFinalizerHandler.getRight(), "metricsListener");
+        AccessLogger actualAccessLogger = (AccessLogger) getInternalState(channelPipelineFinalizerHandler.getRight(), "accessLogger");
 
         assertThat(actualExceptionHandlingHandler, is(expectedExceptionHandlingHandlerPair.getRight()));
         assertThat(actualResponseSender, is(expectedResponseSender));
@@ -1205,7 +1206,7 @@ public class HttpChannelInitializerTest {
         // given
         HttpChannelInitializer hci = basicHttpChannelInitializerNoUtilityHandlers();
         List<PipelineCreateHook> hooks = Arrays.asList(mock(PipelineCreateHook.class), mock(PipelineCreateHook.class));
-        Whitebox.setInternalState(hci, "pipelineCreateHooks", hooks);
+        setInternalState(hci, "pipelineCreateHooks", hooks);
 
         // when
         hci.initChannel(socketChannelMock);

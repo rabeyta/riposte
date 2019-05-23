@@ -10,7 +10,6 @@ import com.nike.riposte.server.http.RequestInfo;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -21,6 +20,7 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.Attribute;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Matchers.any;
@@ -80,7 +80,7 @@ public class RequestContentValidationHandlerTest {
         RequestContentValidationHandler theHandler = new RequestContentValidationHandler(requestValidatorMock);
 
         // when
-        RequestValidator validatorUsed = (RequestValidator) Whitebox.getInternalState(theHandler, "validationService");
+        RequestValidator validatorUsed = (RequestValidator) getInternalState(theHandler, "validationService");
 
         // expect
         assertThat(validatorUsed).isEqualTo(requestValidatorMock);

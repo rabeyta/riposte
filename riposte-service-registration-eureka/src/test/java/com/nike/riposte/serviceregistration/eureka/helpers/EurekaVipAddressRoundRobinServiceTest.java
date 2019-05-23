@@ -6,7 +6,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -114,7 +114,7 @@ public class EurekaVipAddressRoundRobinServiceTest {
         assertThat(serviceSpy.vipRoundRobinCounterMap).isInstanceOf(ConcurrentMap.class);
         assertThat(serviceSpy.vipRoundRobinCounterMap.containsKey(vip)).isFalse();
         ConcurrentMap<String, AtomicInteger> roundRobinCounterMapSpy = spy(serviceSpy.vipRoundRobinCounterMap);
-        Whitebox.setInternalState(serviceSpy, "vipRoundRobinCounterMap", roundRobinCounterMapSpy);
+        setInternalState(serviceSpy, "vipRoundRobinCounterMap", roundRobinCounterMapSpy);
 
         // when
         serviceSpy.getActiveInstanceInfoForVipAddressBlocking(vip);

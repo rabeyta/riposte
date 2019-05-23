@@ -14,7 +14,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,6 +49,7 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.util.CharsetUtil;
 
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -455,7 +455,7 @@ public class RequestInfoImplTest {
     public void setPathParamsBasedOnPathTemplate_throws_PathParameterMatchingException_if_path_and_template_are_not_compatible() {
         // given
         RequestInfo<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "path", "/some/path/42");
+        setInternalState(requestInfo, "path", "/some/path/42");
 
         // expect
         requestInfo.setPathParamsBasedOnPathTemplate("/other/path/{universeAnswer}");
@@ -714,10 +714,10 @@ public class RequestInfoImplTest {
     ) throws IOException {
         // given
         RequestInfoImpl<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "isMultipart", true);
-        Whitebox.setInternalState(requestInfo, "contentCharset", CharsetUtil.UTF_8);
-        Whitebox.setInternalState(requestInfo, "protocolVersion", (httpVersionIsNull) ? null : HttpVersion.HTTP_1_1);
-        Whitebox.setInternalState(requestInfo, "method", (httpMethodIsNull) ? null : HttpMethod.POST);
+        setInternalState(requestInfo, "isMultipart", true);
+        setInternalState(requestInfo, "contentCharset", CharsetUtil.UTF_8);
+        setInternalState(requestInfo, "protocolVersion", (httpVersionIsNull) ? null : HttpVersion.HTTP_1_1);
+        setInternalState(requestInfo, "method", (httpMethodIsNull) ? null : HttpMethod.POST);
         requestInfo.isCompleteRequestWithAllChunks = true;
         requestInfo.rawContentBytes = KNOWN_MULTIPART_DATA_BODY.getBytes(CharsetUtil.UTF_8);
         requestInfo.getHeaders().set("Content-Type", KNOWN_MULTIPART_DATA_CONTENT_TYPE_HEADER);
@@ -740,10 +740,10 @@ public class RequestInfoImplTest {
     public void getMultipartParts_works_as_expected_with_known_empty_data() {
         // given
         RequestInfoImpl<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "isMultipart", true);
-        Whitebox.setInternalState(requestInfo, "contentCharset", CharsetUtil.UTF_8);
-        Whitebox.setInternalState(requestInfo, "protocolVersion", HttpVersion.HTTP_1_1);
-        Whitebox.setInternalState(requestInfo, "method", HttpMethod.POST);
+        setInternalState(requestInfo, "isMultipart", true);
+        setInternalState(requestInfo, "contentCharset", CharsetUtil.UTF_8);
+        setInternalState(requestInfo, "protocolVersion", HttpVersion.HTTP_1_1);
+        setInternalState(requestInfo, "method", HttpMethod.POST);
         requestInfo.isCompleteRequestWithAllChunks = true;
         requestInfo.rawContentBytes = null;
         requestInfo.getHeaders().set("Content-Type", KNOWN_MULTIPART_DATA_CONTENT_TYPE_HEADER);
@@ -760,10 +760,10 @@ public class RequestInfoImplTest {
     public void getMultipartParts_explodes_if_multipartData_had_been_released() {
         // given
         RequestInfoImpl<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "isMultipart", true);
-        Whitebox.setInternalState(requestInfo, "contentCharset", CharsetUtil.UTF_8);
-        Whitebox.setInternalState(requestInfo, "protocolVersion", HttpVersion.HTTP_1_1);
-        Whitebox.setInternalState(requestInfo, "method", HttpMethod.POST);
+        setInternalState(requestInfo, "isMultipart", true);
+        setInternalState(requestInfo, "contentCharset", CharsetUtil.UTF_8);
+        setInternalState(requestInfo, "protocolVersion", HttpVersion.HTTP_1_1);
+        setInternalState(requestInfo, "method", HttpMethod.POST);
         requestInfo.isCompleteRequestWithAllChunks = true;
         requestInfo.rawContentBytes = KNOWN_MULTIPART_DATA_BODY.getBytes(CharsetUtil.UTF_8);
         requestInfo.getHeaders().set("Content-Type", KNOWN_MULTIPART_DATA_CONTENT_TYPE_HEADER);
@@ -781,7 +781,7 @@ public class RequestInfoImplTest {
     public void getMultipartParts_returns_data_from_multipartData() {
         // given
         RequestInfoImpl<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "isMultipart", true);
+        setInternalState(requestInfo, "isMultipart", true);
         requestInfo.isCompleteRequestWithAllChunks = true;
         HttpPostMultipartRequestDecoder multipartDataMock = mock(HttpPostMultipartRequestDecoder.class);
         List<InterfaceHttpData> dataListMock = mock(List.class);
@@ -799,7 +799,7 @@ public class RequestInfoImplTest {
     public void getMultipartParts_returns_null_if_isMultipart_is_false() {
         // given
         RequestInfoImpl<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "isMultipart", false);
+        setInternalState(requestInfo, "isMultipart", false);
         requestInfo.isCompleteRequestWithAllChunks = true;
 
         // when
@@ -813,7 +813,7 @@ public class RequestInfoImplTest {
     public void getMultipartParts_returns_null_if_isCompleteRequestWithAllChunks_is_false() {
         // given
         RequestInfoImpl<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "isMultipart", true);
+        setInternalState(requestInfo, "isMultipart", true);
         requestInfo.isCompleteRequestWithAllChunks = false;
 
         // when

@@ -20,13 +20,13 @@ import com.nike.riposte.server.http.RequestInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -63,10 +63,10 @@ public class RiposteApiExceptionHandlerTest {
 
         // then
         List<ApiExceptionHandlerListener> actualListeners =
-            (List<ApiExceptionHandlerListener>) Whitebox.getInternalState(myAdapter, "apiExceptionHandlerListenerList");
+            (List<ApiExceptionHandlerListener>) getInternalState(myAdapter, "apiExceptionHandlerListenerList");
         ProjectApiErrors actualProjectApiErrors =
-            (ProjectApiErrors) Whitebox.getInternalState(myAdapter, "projectApiErrors");
-        ApiExceptionHandlerUtils actualUtils = (ApiExceptionHandlerUtils) Whitebox.getInternalState(myAdapter, "utils");
+            (ProjectApiErrors) getInternalState(myAdapter, "projectApiErrors");
+        ApiExceptionHandlerUtils actualUtils = (ApiExceptionHandlerUtils) getInternalState(myAdapter, "utils");
         assertThat(actualListeners, is(validListenerList));
         assertThat(actualProjectApiErrors, is(projectApiErrors));
         assertThat(actualUtils, is(utils));
@@ -116,7 +116,7 @@ public class RiposteApiExceptionHandlerTest {
         verify(adapterSpy).maybeHandleException(any(Throwable.class), requestInfoForLoggingArgumentCaptor.capture());
         RequestInfoForLogging passedArg = requestInfoForLoggingArgumentCaptor.getValue();
         assertThat(passedArg, instanceOf(RequestInfoForLoggingRiposteAdapter.class));
-        RequestInfo embeddedRequestInfoInWrapper = (RequestInfo) Whitebox.getInternalState(passedArg, "request");
+        RequestInfo embeddedRequestInfoInWrapper = (RequestInfo) getInternalState(passedArg, "request");
         assertThat(embeddedRequestInfoInWrapper, sameInstance(requestInfoMock));
     }
 

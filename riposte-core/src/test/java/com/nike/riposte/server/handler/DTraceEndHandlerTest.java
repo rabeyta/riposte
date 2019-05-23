@@ -16,7 +16,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.MDC;
 
 import java.util.Deque;
@@ -29,6 +28,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
 import io.netty.util.concurrent.GenericFutureListener;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -183,10 +183,10 @@ public class DTraceEndHandlerTest {
         GenericFutureListener lastChunkListener = extractChannelFutureListenerAddedToLastChunkFuture();
         assertThat(lastChunkListener, notNullValue());
         assertThat(lastChunkListener, instanceOf(ChannelFutureListenerWithTracingAndMdc.class));
-        assertThat(Whitebox.getInternalState(lastChunkListener, "distributedTraceStackForExecution"), is(expectedDtraceInfo.getLeft()));
-        assertThat(Whitebox.getInternalState(lastChunkListener, "mdcContextMapForExecution"), is(expectedDtraceInfo.getRight()));
+        assertThat(getInternalState(lastChunkListener, "distributedTraceStackForExecution"), is(expectedDtraceInfo.getLeft()));
+        assertThat(getInternalState(lastChunkListener, "mdcContextMapForExecution"), is(expectedDtraceInfo.getRight()));
         Consumer<ChannelFuture> embeddedListenerConsumer =
-            (Consumer<ChannelFuture>) Whitebox.getInternalState(lastChunkListener, "postCompleteOperation");
+            (Consumer<ChannelFuture>) getInternalState(lastChunkListener, "postCompleteOperation");
 
         // Execute the embedded listener so we can validate what it does. Note that we can't verify using mockito spy verify(),
         //      because the method call goes through the internal handler, not the spy impl. But we can still verify by

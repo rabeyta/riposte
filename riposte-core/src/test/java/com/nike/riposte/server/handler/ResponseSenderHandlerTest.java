@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.UUID;
 
@@ -26,6 +25,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.Attribute;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -82,7 +83,7 @@ public class ResponseSenderHandlerTest {
         ResponseSenderHandler theHandler = new ResponseSenderHandler(responseSenderMock);
 
         // then
-        ResponseSender actualResponseSender = (ResponseSender) Whitebox.getInternalState(theHandler, "responseSender");
+        ResponseSender actualResponseSender = (ResponseSender) getInternalState(theHandler, "responseSender");
         assertThat(actualResponseSender).isEqualTo(responseSenderMock);
     }
 
@@ -120,7 +121,7 @@ public class ResponseSenderHandlerTest {
         // given
         RequestInfo<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
         doReturn(requestInfo).when(stateMock).getRequestInfo();
-        Whitebox.setInternalState(responseInfo, "contentForFullResponse", UUID.randomUUID().toString());
+        setInternalState(responseInfo, "contentForFullResponse", UUID.randomUUID().toString());
 
         // when
         handlerSpy.sendResponse(ctxMock, null);
@@ -134,7 +135,7 @@ public class ResponseSenderHandlerTest {
         // given
         RequestInfo<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
         doReturn(requestInfo).when(stateMock).getRequestInfo();
-        Whitebox.setInternalState(responseInfo, "contentForFullResponse", null);
+        setInternalState(responseInfo, "contentForFullResponse", null);
 
         // when
         handlerSpy.sendResponse(ctxMock, null);
@@ -192,7 +193,7 @@ public class ResponseSenderHandlerTest {
         RequestInfo<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
         doReturn(requestInfo).when(stateMock).getRequestInfo();
         ErrorResponseBody errorContentMock = mock(ErrorResponseBody.class);
-        Whitebox.setInternalState(responseInfo, "contentForFullResponse", errorContentMock);
+        setInternalState(responseInfo, "contentForFullResponse", errorContentMock);
 
         // when
         handlerSpy.sendResponse(ctxMock, null);

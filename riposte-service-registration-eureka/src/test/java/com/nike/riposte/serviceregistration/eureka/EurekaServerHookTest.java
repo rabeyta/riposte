@@ -2,10 +2,10 @@ package com.nike.riposte.serviceregistration.eureka;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.function.Supplier;
 
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.doThrow;
@@ -24,7 +24,7 @@ public class EurekaServerHookTest {
     public void beforeMethod() {
         eurekaHandlerMock = mock(EurekaHandler.class);
         hook = new EurekaServerHook(() -> true, () -> null);
-        Whitebox.setInternalState(hook, "eurekaHandler", eurekaHandlerMock);
+        setInternalState(hook, "eurekaHandler", eurekaHandlerMock);
     }
 
     @Test

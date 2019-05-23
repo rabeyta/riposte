@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Matchers.any;
@@ -150,16 +150,16 @@ public class SignalFxAwareCodahaleMetricsCollectorTest {
                                                  long expectedReportingInterval,
                                                  TimeUnit expectedTimeUnit) {
         assertThat(timerBuilder).isInstanceOf(RollingWindowTimerBuilder.class);
-        assertThat(Whitebox.getInternalState(timerBuilder, "amount")).isEqualTo(expectedReportingInterval);
-        assertThat(Whitebox.getInternalState(timerBuilder, "timeUnit")).isEqualTo(expectedTimeUnit);
+        assertThat(getInternalState(timerBuilder, "amount")).isEqualTo(expectedReportingInterval);
+        assertThat(getInternalState(timerBuilder, "timeUnit")).isEqualTo(expectedTimeUnit);
     }
 
     private void verifyRollingWindowHistogramBuilder(MetricBuilder<Histogram> histogramBuilder,
                                                  long expectedReportingInterval,
                                                  TimeUnit expectedTimeUnit) {
         assertThat(histogramBuilder).isInstanceOf(RollingWindowHistogramBuilder.class);
-        assertThat(Whitebox.getInternalState(histogramBuilder, "amount")).isEqualTo(expectedReportingInterval);
-        assertThat(Whitebox.getInternalState(histogramBuilder, "timeUnit")).isEqualTo(expectedTimeUnit);
+        assertThat(getInternalState(histogramBuilder, "amount")).isEqualTo(expectedReportingInterval);
+        assertThat(getInternalState(histogramBuilder, "timeUnit")).isEqualTo(expectedTimeUnit);
     }
 
     @Test

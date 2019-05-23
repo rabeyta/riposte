@@ -5,11 +5,11 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Comparator;
 import java.util.UUID;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -31,7 +31,7 @@ public class AntPathMatcherTest {
         matcher.setPathSeparator(newPathSeparator);
 
         // then
-        assertThat(Whitebox.getInternalState(matcher, "pathSeparator"), is(newPathSeparator));
+        assertThat(getInternalState(matcher, "pathSeparator"), is(newPathSeparator));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class AntPathMatcherTest {
         matcher.setPathSeparator(null);
 
         // then
-        assertThat(Whitebox.getInternalState(matcher, "pathSeparator"), is(AntPathMatcher.DEFAULT_PATH_SEPARATOR));
+        assertThat(getInternalState(matcher, "pathSeparator"), is(AntPathMatcher.DEFAULT_PATH_SEPARATOR));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class AntPathMatcherTest {
         matcher.setTrimTokens(newValue);
 
         // then
-        assertThat(Whitebox.getInternalState(matcher, "trimTokens"), is(newValue));
+        assertThat(getInternalState(matcher, "trimTokens"), is(newValue));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AntPathMatcherTest {
         matcher.setCachePatterns(newValue);
 
         // then
-        assertThat(Whitebox.getInternalState(matcher, "cachePatterns"), is(newValue));
+        assertThat(getInternalState(matcher, "cachePatterns"), is(newValue));
     }
 
     @Test

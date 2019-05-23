@@ -14,11 +14,11 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -105,7 +105,7 @@ public class ServerTest {
 
         Server server = new Server(serverConfigMock);
 
-        Whitebox.setInternalState(server, "channels", singletonList(channelMock));
+        setInternalState(server, "channels", singletonList(channelMock));
 
         // when
         server.shutdown();
@@ -127,7 +127,7 @@ public class ServerTest {
 
         Server server = new Server(serverConfigMock);
 
-        Whitebox.setInternalState(server, "channels", singletonList(channelMock));
+        setInternalState(server, "channels", singletonList(channelMock));
 
         server.shutdown();
 

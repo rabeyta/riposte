@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,6 +30,7 @@ import io.netty.util.Attribute;
 
 import static com.nike.riposte.server.channelpipeline.HttpChannelInitializer.IDLE_CHANNEL_TIMEOUT_HANDLER_NAME;
 import static com.nike.riposte.server.channelpipeline.HttpChannelInitializer.INCOMPLETE_HTTP_CALL_TIMEOUT_HANDLER_NAME;
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -140,7 +140,7 @@ public class RequestStateCleanerHandlerTest {
         doAnswer(invocation -> httpStateRef.get()).when(stateAttrMock).get();
         doAnswer(
             invocation -> {
-                httpStateRef.set(invocation.getArgumentAt(0, HttpProcessingState.class));
+                httpStateRef.set(invocation.getArgument(0));
                 return null;
             }
         ).when(stateAttrMock).set(any(HttpProcessingState.class));
@@ -149,7 +149,7 @@ public class RequestStateCleanerHandlerTest {
         doAnswer(invocation -> proxyStateRef.get()).when(proxyRouterProcessingStateAttrMock).get();
         doAnswer(
             invocation -> {
-                proxyStateRef.set(invocation.getArgumentAt(0, ProxyRouterProcessingState.class));
+                proxyStateRef.set(invocation.getArgument(0));
                 return null;
             }
         ).when(proxyRouterProcessingStateAttrMock).set(any(ProxyRouterProcessingState.class));
@@ -164,14 +164,14 @@ public class RequestStateCleanerHandlerTest {
         verify(stateAttrMock).set(actualHttpState);
 
         // Verify the expected DistributedTracingConfig was set on the new HTTP state.
-        assertThat(Whitebox.getInternalState(actualHttpState, "distributedTracingConfig"))
+        assertThat(getInternalState(actualHttpState, "distributedTracingConfig"))
             .isSameAs(distributedTracingConfigMock);
 
         // Do the same verifications for ProxyRouterProcessingState.
         ProxyRouterProcessingState actualProxyState = proxyStateRef.get();
         assertThat(actualProxyState).isNotNull();
         verify(proxyRouterProcessingStateAttrMock).set(actualProxyState);
-        assertThat(Whitebox.getInternalState(actualProxyState, "distributedTracingConfig"))
+        assertThat(getInternalState(actualProxyState, "distributedTracingConfig"))
             .isSameAs(distributedTracingConfigMock);
 
         // Verify metrics listener was called for a request received event using the new state.

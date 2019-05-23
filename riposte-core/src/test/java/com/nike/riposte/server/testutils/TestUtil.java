@@ -6,6 +6,7 @@ import com.nike.wingtips.Tracer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.MDC;
 
 import static org.mockito.Mockito.mock;
@@ -53,6 +54,22 @@ public class TestUtil {
             this.mockChannel = mockChannel;
             this.mockAttribute = mockAttribute;
             this.mockHttpProcessingState = mockHttpProcessingState;
+        }
+    }
+
+    public static void setInternalState(Object target, String fieldName, Object value) {
+        try {
+            FieldUtils.writeField(target, fieldName, value, true);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object getInternalState(Object target, String fieldName) {
+        try {
+            return FieldUtils.readField(target, fieldName, true);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }

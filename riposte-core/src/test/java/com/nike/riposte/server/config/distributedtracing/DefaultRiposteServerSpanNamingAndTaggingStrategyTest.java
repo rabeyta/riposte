@@ -184,6 +184,9 @@ public class DefaultRiposteServerSpanNamingAndTaggingStrategyTest {
     @Test
     public void doChangeSpanName_changes_span_name_as_expected(String newName, boolean expectNameToBeChanged) {
         // given
+        if (newName == null) {
+            newName = "null";
+        }
         if ("[whitespace]".equals(newName)) {
             newName = "  \r\n\t  ";
         }

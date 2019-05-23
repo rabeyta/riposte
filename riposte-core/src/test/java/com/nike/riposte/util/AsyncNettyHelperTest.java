@@ -26,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.MDC;
 
 import java.util.ArrayList;
@@ -51,6 +50,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Attribute;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Matchers.any;
@@ -164,9 +164,9 @@ public class AsyncNettyHelperTest {
                                                         Deque<Span> expectedSpanStack,
                                                         Map<String, String> expectedMdcInfo) {
         assertThat(result).isInstanceOf(RunnableWithTracingAndMdcSupport.class);
-        assertThat(Whitebox.getInternalState(result, "origRunnable")).isSameAs(expectedCoreRunnable);
-        assertThat(Whitebox.getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
-        assertThat(Whitebox.getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
+        assertThat(getInternalState(result, "origRunnable")).isSameAs(expectedCoreRunnable);
+        assertThat(getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
+        assertThat(getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
     }
 
     @Test
@@ -210,9 +210,9 @@ public class AsyncNettyHelperTest {
                                                         Deque<Span> expectedSpanStack,
                                                         Map<String, String> expectedMdcInfo) {
         assertThat(result).isInstanceOf(CallableWithTracingAndMdcSupport.class);
-        assertThat(Whitebox.getInternalState(result, "origCallable")).isSameAs(expectedCoreInstance);
-        assertThat(Whitebox.getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
-        assertThat(Whitebox.getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
+        assertThat(getInternalState(result, "origCallable")).isSameAs(expectedCoreInstance);
+        assertThat(getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
+        assertThat(getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
     }
 
     @Test
@@ -256,9 +256,9 @@ public class AsyncNettyHelperTest {
                                                         Deque<Span> expectedSpanStack,
                                                         Map<String, String> expectedMdcInfo) {
         assertThat(result).isInstanceOf(SupplierWithTracingAndMdcSupport.class);
-        assertThat(Whitebox.getInternalState(result, "origSupplier")).isSameAs(expectedCoreInstance);
-        assertThat(Whitebox.getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
-        assertThat(Whitebox.getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
+        assertThat(getInternalState(result, "origSupplier")).isSameAs(expectedCoreInstance);
+        assertThat(getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
+        assertThat(getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
     }
 
     @Test
@@ -302,9 +302,9 @@ public class AsyncNettyHelperTest {
                                                         Deque<Span> expectedSpanStack,
                                                         Map<String, String> expectedMdcInfo) {
         assertThat(result).isInstanceOf(FunctionWithTracingAndMdcSupport.class);
-        assertThat(Whitebox.getInternalState(result, "origFunction")).isSameAs(expectedCoreInstance);
-        assertThat(Whitebox.getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
-        assertThat(Whitebox.getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
+        assertThat(getInternalState(result, "origFunction")).isSameAs(expectedCoreInstance);
+        assertThat(getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
+        assertThat(getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
     }
 
     @Test
@@ -348,9 +348,9 @@ public class AsyncNettyHelperTest {
                                                         Deque<Span> expectedSpanStack,
                                                         Map<String, String> expectedMdcInfo) {
         assertThat(result).isInstanceOf(BiFunctionWithTracingAndMdcSupport.class);
-        assertThat(Whitebox.getInternalState(result, "origBiFunction")).isSameAs(expectedCoreInstance);
-        assertThat(Whitebox.getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
-        assertThat(Whitebox.getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
+        assertThat(getInternalState(result, "origBiFunction")).isSameAs(expectedCoreInstance);
+        assertThat(getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
+        assertThat(getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
     }
 
     @Test
@@ -394,9 +394,9 @@ public class AsyncNettyHelperTest {
                                                         Deque<Span> expectedSpanStack,
                                                         Map<String, String> expectedMdcInfo) {
         assertThat(result).isInstanceOf(ConsumerWithTracingAndMdcSupport.class);
-        assertThat(Whitebox.getInternalState(result, "origConsumer")).isSameAs(expectedCoreInstance);
-        assertThat(Whitebox.getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
-        assertThat(Whitebox.getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
+        assertThat(getInternalState(result, "origConsumer")).isSameAs(expectedCoreInstance);
+        assertThat(getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
+        assertThat(getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
     }
 
     @Test
@@ -440,9 +440,9 @@ public class AsyncNettyHelperTest {
                                                         Deque<Span> expectedSpanStack,
                                                         Map<String, String> expectedMdcInfo) {
         assertThat(result).isInstanceOf(BiConsumerWithTracingAndMdcSupport.class);
-        assertThat(Whitebox.getInternalState(result, "origBiConsumer")).isSameAs(expectedCoreInstance);
-        assertThat(Whitebox.getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
-        assertThat(Whitebox.getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
+        assertThat(getInternalState(result, "origBiConsumer")).isSameAs(expectedCoreInstance);
+        assertThat(getInternalState(result, "distributedTraceStackForExecution")).isSameAs(expectedSpanStack);
+        assertThat(getInternalState(result, "mdcContextMapForExecution")).isSameAs(expectedMdcInfo);
     }
 
     @Test

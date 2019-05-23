@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.UUID;
 
@@ -23,6 +22,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.Attribute;
 
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -62,8 +63,8 @@ public class RequestContentDeserializerHandlerTest {
         endpointMock = mock(Endpoint.class);
         requestInfoSpy = spy((RequestInfo<String>) RequestInfoImpl.dummyInstanceForUnknownRequests());
         String rawContentString = UUID.randomUUID().toString();
-        Whitebox.setInternalState(requestInfoSpy, "rawContent", rawContentString);
-        Whitebox.setInternalState(requestInfoSpy, "rawContentBytes", rawContentString.getBytes());
+        setInternalState(requestInfoSpy, "rawContent", rawContentString);
+        setInternalState(requestInfoSpy, "rawContentBytes", rawContentString.getBytes());
         defaultHandlerDeserializerMock = mock(ObjectMapper.class);
 
         doReturn(channelMock).when(ctxMock).channel();
@@ -83,7 +84,7 @@ public class RequestContentDeserializerHandlerTest {
         RequestContentDeserializerHandler theHandler = new RequestContentDeserializerHandler(defaultHandlerDeserializerMock);
 
         // then
-        ObjectMapper storedObjMapperDefault = (ObjectMapper) Whitebox.getInternalState(theHandler, "defaultRequestContentDeserializer");
+        ObjectMapper storedObjMapperDefault = (ObjectMapper) getInternalState(theHandler, "defaultRequestContentDeserializer");
         assertThat(storedObjMapperDefault).isEqualTo(defaultHandlerDeserializerMock);
     }
 
@@ -93,7 +94,7 @@ public class RequestContentDeserializerHandlerTest {
         RequestContentDeserializerHandler theHandler = new RequestContentDeserializerHandler(null);
 
         // then
-        ObjectMapper storedObjMapperDefault = (ObjectMapper) Whitebox.getInternalState(theHandler, "defaultRequestContentDeserializer");
+        ObjectMapper storedObjMapperDefault = (ObjectMapper) getInternalState(theHandler, "defaultRequestContentDeserializer");
         assertThat(storedObjMapperDefault).isNotEqualTo(defaultHandlerDeserializerMock);
     }
 

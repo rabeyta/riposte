@@ -3,12 +3,13 @@ package com.nike.riposte.server.config.impl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.net.UnknownHostException;
 import java.util.UUID;
 
 import static com.nike.riposte.server.config.AppInfo.UNKNOWN_VALUE;
+import static com.nike.riposte.server.testutils.TestUtil.getInternalState;
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.doThrow;
@@ -203,14 +204,14 @@ public class AppInfoImplTest {
         AppInfoImpl instanceForStaticVariableReflectionJunk = new AppInfoImpl("testappid", "testenvironment", "nodatacenter", "someinstanceid");
         String localHostnameGetterStaticVariableName = "LOCAL_HOSTNAME_GETTER";
         AppInfoImpl.LocalHostnameGetter existingLocalHostnameGetter =
-                (AppInfoImpl.LocalHostnameGetter) Whitebox.getInternalState(instanceForStaticVariableReflectionJunk, localHostnameGetterStaticVariableName);
+                (AppInfoImpl.LocalHostnameGetter) getInternalState(instanceForStaticVariableReflectionJunk, localHostnameGetterStaticVariableName);
 
         try {
             // given
             String appId = UUID.randomUUID().toString();
             AppInfoImpl.LocalHostnameGetter localHostnameGetterMock = mock(AppInfoImpl.LocalHostnameGetter.class);
             doThrow(new UnknownHostException("intentionaltestexplosion")).when(localHostnameGetterMock).getLocalHostname();
-            Whitebox.setInternalState(instanceForStaticVariableReflectionJunk, localHostnameGetterStaticVariableName, localHostnameGetterMock);
+            setInternalState(instanceForStaticVariableReflectionJunk, localHostnameGetterStaticVariableName, localHostnameGetterMock);
 
             // when
             AppInfoImpl localInstance = AppInfoImpl.createLocalInstance(appId);
@@ -222,7 +223,7 @@ public class AppInfoImplTest {
             assertThat(localInstance.instanceId).isEqualTo(UNKNOWN_VALUE);
         }
         finally {
-            Whitebox.setInternalState(instanceForStaticVariableReflectionJunk, localHostnameGetterStaticVariableName, existingLocalHostnameGetter);
+            setInternalState(instanceForStaticVariableReflectionJunk, localHostnameGetterStaticVariableName, existingLocalHostnameGetter);
         }
     }
 

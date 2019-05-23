@@ -9,7 +9,6 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +21,7 @@ import java.util.stream.Collectors;
 
 import io.netty.handler.codec.http.HttpMethod;
 
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -211,7 +211,7 @@ public class MultiMatcherTest {
         // given
         MultiMatcher matcher = MultiMatcher.match(matcherPathTemplates);
         RequestInfo<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
-        Whitebox.setInternalState(requestInfo, "path", requestPath);
+        setInternalState(requestInfo, "path", requestPath);
 
         // expect
         assertThat(matcher.matchesPath(requestInfo), is(expectedMatchValue));
@@ -249,9 +249,9 @@ public class MultiMatcherTest {
         MultiMatcher matcher = MultiMatcher.match(paths, matcherMethods);
         RequestInfo<?> requestInfo = RequestInfoImpl.dummyInstanceForUnknownRequests();
         if (requestMethodString == null)
-            Whitebox.setInternalState(requestInfo, "method", null);
+            setInternalState(requestInfo, "method", null);
         else
-            Whitebox.setInternalState(requestInfo, "method", HttpMethod.valueOf(requestMethodString));
+            setInternalState(requestInfo, "method", HttpMethod.valueOf(requestMethodString));
 
         // expect
         assertThat(matcher.matchesMethod(requestInfo), is(expectedMatchValue));

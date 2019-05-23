@@ -9,7 +9,6 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,6 +31,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 
+import static com.nike.riposte.server.testutils.TestUtil.setInternalState;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -129,7 +129,7 @@ public class HttpServletRequestWrapperForRequestInfoTest {
     public void getCookies_uses_cached_value() {
         // given
         Cookie[] cachedValue = new Cookie[] {new Cookie(UUID.randomUUID().toString(), UUID.randomUUID().toString())};
-        Whitebox.setInternalState(wrapper, "convertedCookieCache", cachedValue);
+        setInternalState(wrapper, "convertedCookieCache", cachedValue);
 
         // when
         Cookie[] result = wrapper.getCookies();
@@ -330,7 +330,7 @@ public class HttpServletRequestWrapperForRequestInfoTest {
     public void getRequestURL_constructs_result_from_scheme_and_host_header_and_requestInfo_path(boolean ssl,
                                                                                                  String hostHeader) {
         // given
-        Whitebox.setInternalState(wrapper, "isSsl", ssl);
+        setInternalState(wrapper, "isSsl", ssl);
         if (hostHeader != null)
             headers.set(HttpHeaders.Names.HOST, hostHeader);
         String path = "/" + UUID.randomUUID().toString();
@@ -562,7 +562,7 @@ public class HttpServletRequestWrapperForRequestInfoTest {
     @Test
     public void getScheme_uses_isSsl(boolean ssl) {
         // given
-        Whitebox.setInternalState(wrapper, "isSsl", ssl);
+        setInternalState(wrapper, "isSsl", ssl);
         String expectedScheme = (ssl) ? "https" : "http";
 
         // when
@@ -672,7 +672,7 @@ public class HttpServletRequestWrapperForRequestInfoTest {
     @Test
     public void isSecure_returns_expected_value(boolean ssl) {
         // given
-        Whitebox.setInternalState(wrapper, "isSsl", ssl);
+        setInternalState(wrapper, "isSsl", ssl);
 
         // expect
         assertThat(wrapper.isSecure()).isEqualTo(ssl);
